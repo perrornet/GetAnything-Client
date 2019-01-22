@@ -14,12 +14,18 @@ type Props = {};
 export default class App extends Component<Props> {
   constructor(props){
     super(props);
-    this._onChangeText = this._onChangeText.bind(this);
+    this._onEndEditing = this._onEndEditing.bind(this);
     this.state = {
       showValue:"",
     };
   }
 
+
+  _onEndEditing(event){
+    //把获取到的内容，设置给showValue
+    this.setState({showValue:event.nativeEvent.text});
+    this.getMoviesFromApiAsync()
+  }
 
   _onChangeText(inputData){
     //把获取到的内容，设置给showValue
@@ -42,7 +48,7 @@ export default class App extends Component<Props> {
           if (data.code != 0){
             Alert.alert("", data.msg)
           }else{
-            Alert.alert(data.data.info[0].title, "视频下载链接：" + data.data.info[0].url)
+            Alert.alert(data.data.info[0].title, "视频下载链接：" + data.data.info[0].url);
             console.error("fdsafdsa")
           }
         })
@@ -55,7 +61,7 @@ export default class App extends Component<Props> {
     return (
         <View style={styles.container}>
           <Text style={styles.log}>Get anything</Text>
-          <TextInput style={styles.textInput}  underlineColorAndroid={'transparent'} editable={true} onChangeText={this._onChangeText.bind(this)} placeholder="输入需要下载视频的链接"  />
+          <TextInput style={styles.textInput}  underlineColorAndroid={'transparent'} editable={true} onChangeText={this._onChangeText.bind(this)} onEndEditing={this._onEndEditing.bind(this)} placeholder="输入需要下载视频的链接"  />
           <TouchableOpacity style={styles.touchButton} onPress={this.getMoviesFromApiAsync.bind(this)}>
             <Text style={styles.touchButtonText}>下载</Text>
           </TouchableOpacity>
@@ -80,10 +86,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 80,
     height: 80,
-    width: width,
+    width: width + 100,
     marginBottom: 5,
-    backgroundColor: 'white',
+    backgroundColor: '#F5FCFF',
     textAlign: 'center',
+    alignItems: 'center',
   },
   log:{
     fontSize: 40,
