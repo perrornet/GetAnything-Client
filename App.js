@@ -40,10 +40,9 @@ export default class App extends Component<Props> {
       showValue:"",
     };
   }
-
   downloadFile(url, type, headers, title) {
     // todo: 修改目录， 使得文件下载到同一的文件夹
-    const downloadDest = `${RNFS.ExternalStorageDirectoryPath}/GetAnything_${title}.${type}`;
+    const downloadDest = `${RNFS.ExternalStorageDirectoryPath}/GetAnything_${title}_${Math.random()}.${type}`;
     const formUrl = url;
     const options = {
       headers:headers,
@@ -60,13 +59,13 @@ export default class App extends Component<Props> {
     try {
       const ret = RNFS.downloadFile(options);
       ret.promise.then(res => {
-        Alert.alert("下载完成", "文件保存地址：" + downloadDest);
+        Alert.alert("下载完成", "文件保存地址：" + downloadDest, [{text:"确认"}]);
       }).catch(err => {
         Alert.alert("", "文件下载出现错误：", err);
       });
     }
     catch (e) {
-      console.warn(error);
+      console.error(error);
     }
 
   }
@@ -75,12 +74,10 @@ export default class App extends Component<Props> {
   DownloadFormUrl(url, title, headers){
     fetch(url, {method:"HEAD", headers: headers}).then(
         response => {
-          console.warn(url);
           var _type = fileType[response.headers["map"]["content-type"]];
           if (_type == null){
             Alert.alert("错误", "暂时不支持该类型文件下载！:" + response.headers["map"]["content-type"])
           }else{
-            Alert.alert("", "文件开始下载...");
             this.downloadFile(url, _type, headers, title)
           }
         }
@@ -114,6 +111,7 @@ export default class App extends Component<Props> {
           if (data.code != 0){
             Alert.alert("", data.msg)
           }else{
+            Alert.alert("", "文件开始下载...");
             for (var i = 0; i < data.data.info.length; i++){
               this.DownloadFormUrl(data.data.info[i].url, data.data.info[i].title, data.data.headers);
             }
