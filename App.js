@@ -8,8 +8,29 @@
 
 import React, {Component} from 'react';
 import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert} from 'react-native';
+import RNFS from 'react-native-fs'
 
 type Props = {};
+
+var fileType = {
+  "video/3gpp": "3gp",
+  "video/f4v": "flv",
+  "video/mp4": "mp4",
+  "video/MP2T": "ts",
+  "video/quicktime": "mov",
+  "video/webm": "webm",
+  "video/x-flv": "flv",
+  "video/x-ms-asf": "asf",
+  "audio/mp4": "mp4",
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+  "audio/x-wav": "wav",
+  "audio/wave": "wav",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "application/pdf": "pdf"
+};
 
 export default class App extends Component<Props> {
   constructor(props){
@@ -20,6 +41,51 @@ export default class App extends Component<Props> {
     };
   }
 
+  downloadFile(url, type, headers, title) {
+    // todo: 修改目录， 使得文件下载到同一的文件夹
+    const downloadDest = `${RNFS.ExternalStorageDirectoryPath}/GetAnything_${title}.${type}`;
+    const formUrl = url;
+    const options = {
+      headers:headers,
+      fromUrl: formUrl,
+      toFile: downloadDest,
+      background: true,
+      progress: (res) => {
+        let pro = res.bytesWritten / res.contentLength;
+        this.setState({
+          progressNum: pro,
+        });
+      }
+    };
+    try {
+      const ret = RNFS.downloadFile(options);
+      ret.promise.then(res => {
+        Alert.alert("下载完成", "文件保存地址：" + downloadDest);
+      }).catch(err => {
+        Alert.alert("", "文件下载出现错误：", err);
+      });
+    }
+    catch (e) {
+      console.warn(error);
+    }
+
+  }
+
+
+  DownloadFormUrl(url, title, headers){
+    fetch(url, {method:"HEAD", headers: headers}).then(
+        response => {
+          console.warn(url);
+          var _type = fileType[response.headers["map"]["content-type"]];
+          if (_type == null){
+            Alert.alert("错误", "暂时不支持该类型文件下载！:" + response.headers["map"]["content-type"])
+          }else{
+            Alert.alert("", "文件开始下载...");
+            this.downloadFile(url, _type, headers, title)
+          }
+        }
+    );
+  }
 
   _onEndEditing(event){
     //把获取到的内容，设置给showValue
@@ -48,12 +114,20 @@ export default class App extends Component<Props> {
           if (data.code != 0){
             Alert.alert("", data.msg)
           }else{
-            Alert.alert(data.data.info[0].title, "视频下载链接：" + data.data.info[0].url);
-            console.error("fdsafdsa")
+            for (var i = 0; i < data.data.info.length; i++){
+              this.DownloadFormUrl(data.data.info[i].url, data.data.info[i].title, data.data.headers);
+            }
           }
         })
         .catch(error => {
-          console.error(error);
+          var err_string = error.toString();
+          if (err_string.match("undefined is not an object") != null){
+            Alert.alert("error", "检查服务器配置以及本地网络连接！")
+          }else if (err_string.match("JSON Parse error") != null){
+            Alert.alert("error", "检查服务器配置以及本地网络连接！")
+          }else{
+            console.error(error)
+          }
         });
   }
 
@@ -105,6 +179,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
+
   touchButtonText: {
     color: 'white',
     textAlign: 'center',

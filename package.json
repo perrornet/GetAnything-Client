@@ -10,6 +10,7 @@
     "react": "16.6.3",
     "react-native": "0.57.8",
     "react-native-elements": "^1.0.0-beta7",
+    "react-native-fs": "^2.13.3",
     "react-native-ui-lib": "^3.15.5"
   },
   "devDependencies": {
@@ -20,5 +21,18 @@
   },
   "jest": {
     "preset": "react-native"
-  }
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PerrorOne/GetAnything-Client.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PerrorOne/GetAnything-Client/issues"
+  },
+  "homepage": "https://github.com/PerrorOne/GetAnything-Client#readme",
+  "description": ""
 }
