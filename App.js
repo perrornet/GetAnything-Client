@@ -57,9 +57,8 @@ export default class App extends Component<Props> {
         this.refs.toast.show(`文件下载成功, 储存目录:${downloadDest}`, 1000);
       }).catch(err => {
         if (err.toString().match("such file") != null){
-          Alert.alert("客户端错误", "请在设置->授权管理->应用权限管理中打开'读写手机存储'权限")
+          Alert.alert("客户端错误", "请在设置->授权管理->应用权限管理中打开'读写手机存储'权限后重试！")
         }
-        this.refs.toast.show(`文件下载出现错误:${err}`, 3000);
       });
     }
     catch (e) {
@@ -75,7 +74,6 @@ export default class App extends Component<Props> {
           var _type = fileType[response.headers["map"]["content-type"]];
           if (_type == null){
             this.refs.toast.show(`暂时不支持该类型文件下载！: ${response.headers["map"]["content-type"]}`, 1000);
-            Alert.alert("客户端错误", "暂时不支持该类型文件下载！:")
           }else{
             this.downloadFile(url, _type, headers, title)
           }
