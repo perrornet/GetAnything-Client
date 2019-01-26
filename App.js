@@ -7,9 +7,9 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert} from 'react-native';
-import RNFS from 'react-native-fs'
-
+import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, TouchableHighlight} from 'react-native';
+import RNFS from "react-native-fs";
+import Toast, {DURATION} from 'react-native-easy-toast'
 type Props = {};
 
 var fileType = {
@@ -42,30 +42,28 @@ export default class App extends Component<Props> {
   }
   downloadFile(url, type, headers, title) {
     // todo: 修改目录， 使得文件下载到同一的文件夹
-    const downloadDest = `${RNFS.ExternalStorageDirectoryPath}/GetAnything_${title}_${Math.random()}.${type}`;
-    const formUrl = url;
+    const downloadDest = `${RNFS.ExternalStorageDirectoryPath}/GetAnything_${title.replace("：", "")}_${Math.random()}.${type}`;
     const options = {
       headers:headers,
-      fromUrl: formUrl,
+      fromUrl: url,
       toFile: downloadDest,
       background: true,
-      progress: (res) => {
-        let pro = res.bytesWritten / res.contentLength;
-        this.setState({
-          progressNum: pro,
-        });
+      begin: (res) => {
       }
     };
     try {
       const ret = RNFS.downloadFile(options);
       ret.promise.then(resp => {
-        Alert.alert("下载完成", "文件保存地址：" + downloadDest, [{text:"确认"}]);
+        this.refs.toast.show(`文件下载成功, 储存目录:${downloadDest}`, 1000);
       }).catch(err => {
-        Alert.alert("", "文件下载出现错误：", err);
+        if (err.toString().match("such file") != null){
+          Alert.alert("客户端错误", "请在设置->授权管理->应用权限管理中打开'读写手机存储'权限")
+        }
+        this.refs.toast.show(`文件下载出现错误:${err}`, 3000);
       });
     }
     catch (e) {
-      console.error(error);
+      this.refs.toast.show(`文件下载出现错误:${e}`, 3000);
     }
 
   }
@@ -76,14 +74,14 @@ export default class App extends Component<Props> {
         response => {
           var _type = fileType[response.headers["map"]["content-type"]];
           if (_type == null){
-            Alert.alert("错误", "暂时不支持该类型文件下载！:" + response.headers["map"]["content-type"])
+            this.refs.toast.show(`暂时不支持该类型文件下载！: ${response.headers["map"]["content-type"]}`, 1000);
+            Alert.alert("客户端错误", "暂时不支持该类型文件下载！:")
           }else{
             this.downloadFile(url, _type, headers, title)
           }
         }
-    );
+    )
   }
-
   _onEndEditing(event){
     //把获取到的内容，设置给showValue
     this.setState({showValue:event.nativeEvent.text});
@@ -96,6 +94,7 @@ export default class App extends Component<Props> {
   }
 
   getMoviesFromApiAsync() {
+
     if (this.state.showValue.match("http") == null || this.state.showValue.substring(0, 4) != "http"){
       Alert.alert("", "输入的URL不合法，正确的URL应该以http或https开头");
       return null
@@ -109,9 +108,9 @@ export default class App extends Component<Props> {
         .then(response => response.json())
         .then(data => {
           if (data.code != 0){
-            Alert.alert("", data.msg)
+            Alert.alert("服务器错误", data.msg)
           }else{
-            Alert.alert("", "文件开始下载...");
+            this.refs.toast.show(`总计${data.data.info.length}个文件，开始下载`,2000);
             for (var i = 0; i < data.data.info.length; i++){
               this.DownloadFormUrl(data.data.info[i].url, data.data.info[i].title, data.data.headers);
             }
@@ -120,11 +119,11 @@ export default class App extends Component<Props> {
         .catch(error => {
           var err_string = error.toString();
           if (err_string.match("undefined is not an object") != null){
-            Alert.alert("error", "检查服务器配置以及本地网络连接！")
+            Alert.alert("客户端错误", "检查服务器配置以及本地网络连接！")
           }else if (err_string.match("JSON Parse error") != null){
-            Alert.alert("error", "检查服务器配置以及本地网络连接！")
+            Alert.alert("客户端错误", "检查服务器配置以及本地网络连接！")
           }else{
-            console.error(error)
+            Alert.alert("客户端错误", error)
           }
         });
   }
@@ -137,6 +136,14 @@ export default class App extends Component<Props> {
           <TouchableOpacity style={styles.touchButton} onPress={this.getMoviesFromApiAsync.bind(this)}>
             <Text style={styles.touchButtonText}>下载</Text>
           </TouchableOpacity>
+          <Toast  //提示
+              ref="toast"
+              style={{backgroundColor:'gray'}}
+              position='center'
+              positionValue={200}
+              opacity={0.6}
+              textStyle={{color:'white'}}
+          />
         </View>
     );
   }
