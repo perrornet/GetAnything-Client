@@ -58,7 +58,7 @@ export default class App extends Component<Props> {
     };
     try {
       const ret = RNFS.downloadFile(options);
-      ret.promise.then(res => {
+      ret.promise.then(resp => {
         Alert.alert("下载完成", "文件保存地址：" + downloadDest, [{text:"确认"}]);
       }).catch(err => {
         Alert.alert("", "文件下载出现错误：", err);
