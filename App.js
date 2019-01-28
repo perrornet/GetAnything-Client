@@ -7,31 +7,17 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, TouchableHighlight} from 'react-native';
+import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert} from 'react-native';
 import RNFS from "react-native-fs";
-import Toast, {DURATION} from 'react-native-easy-toast'
+import Toast from 'react-native-easy-toast'
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
 type Props = {};
 
-var fileType = {
-  "video/3gpp": "3gp",
-  "video/f4v": "flv",
-  "video/mp4": "mp4",
-  "video/MP2T": "ts",
-  "video/quicktime": "mov",
-  "video/webm": "webm",
-  "video/x-flv": "flv",
-  "video/x-ms-asf": "asf",
-  "audio/mp4": "mp4",
-  "audio/mpeg": "mp3",
-  "audio/wav": "wav",
-  "audio/x-wav": "wav",
-  "audio/wave": "wav",
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/gif": "gif",
-  "application/pdf": "pdf"
+const config = {
+  "download_path": RNFS.ExternalStorageDirectoryPath,
+  "host": "http://23ss464660.iok.la",
 };
-
 export default class App extends Component<Props> {
   constructor(props){
     super(props);
@@ -41,8 +27,11 @@ export default class App extends Component<Props> {
     };
   }
   downloadFile(url, type, headers, title) {
+    if (type == "" || type == null || type == undefined){
+      type = "mp4"
+    }
     // todo: 修改目录， 使得文件下载到同一的文件夹
-    const downloadDest = `${RNFS.ExternalStorageDirectoryPath}/GetAnything_${title.replace("：", "")}_${Math.random()}.${type}`;
+    const downloadDest = `${config.download_path}/GetAnything_${title.replace("：", "")}_${Math.random()}.${type}`;
     const options = {
       headers:headers,
       fromUrl: url,
@@ -99,7 +88,7 @@ export default class App extends Component<Props> {
     }
     var fromData = new FormData();
     fromData.append("url", this.state.showValue);
-    return fetch("http://23ss464660.iok.la/GetVideoUrl", {
+    return fetch(`${config.host}/GetVideoUrl`, {
       method:"POST",
       body:fromData
     })
@@ -110,7 +99,7 @@ export default class App extends Component<Props> {
           }else{
             this.refs.toast.show(`总计${data.data.info.length}个文件，开始下载`,2000);
             for (var i = 0; i < data.data.info.length; i++){
-              this.DownloadFormUrl(data.data.info[i].url, data.data.info[i].title, data.data.headers);
+              this.downloadFile(data.data.info[i].url, data.data.info[i].type, data.data.headers, data.data.info[i].title);
             }
           }
         })
@@ -130,7 +119,7 @@ export default class App extends Component<Props> {
     return (
         <View style={styles.container}>
           <Text style={styles.log}>Get anything</Text>
-          <TextInput style={styles.textInput}  underlineColorAndroid={'transparent'} editable={true} onChangeText={this._onChangeText.bind(this)} onEndEditing={this._onEndEditing.bind(this)} placeholder="输入需要下载视频的链接"  />
+          <TextInput style={styles.textInput}  underlineColorAndroid={'transparent'} editable={true} onChangeText={this._onChangeText.bind(this)} onEndEditing={this._onEndEditing.bind(this)} placeholder="输入需要下载视频的链接" placeholderTextColor="#6ee6ff" />
           <TouchableOpacity style={styles.touchButton} onPress={this.getMoviesFromApiAsync.bind(this)}>
             <Text style={styles.touchButtonText}>下载</Text>
           </TouchableOpacity>
@@ -142,6 +131,18 @@ export default class App extends Component<Props> {
               opacity={0.6}
               textStyle={{color:'white'}}
           />
+          {/* Rest of the app comes ABOVE the action button component !*/}
+          <ActionButton buttonColor="rgba(231,76,60,1)" offsetX={10} offsetY={50} buttonText="更多" buttonTextStyle={styles.buttonTextStyle}>
+            <ActionButton.Item buttonColor='#9b59b6'  onPress={() => console.log("notes tapped!")}>
+              <Icon name="md-create" style={styles.actionButtonIcon} >已下载</Icon>
+            </ActionButton.Item>
+            <ActionButton.Item buttonColor='#3498db' onPress={() => {}}>
+              <Icon name="md-notifications-off" style={styles.actionButtonIcon} >设置</Icon>
+            </ActionButton.Item>
+            <ActionButton.Item buttonColor='#1abc9c' onPress={() => {}}>
+              <Icon name="md-done-all" style={styles.actionButtonIcon} >关于</Icon>
+            </ActionButton.Item>
+          </ActionButton>
         </View>
     );
   }
@@ -150,20 +151,19 @@ export default class App extends Component<Props> {
 var dimensions = require('Dimensions');
 //获取屏幕的宽度和高度
 var {width,height} = dimensions.get('window');
-width = width / 2;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 150,
+    marginTop: height * 0.1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
   textInput: {
     fontSize: 15,
-    marginTop: 80,
-    height: 80,
-    width: width + 100,
+    marginTop: height * 0.1,
+    height: height * 0.2,
+    width: width * 0.55,
     marginBottom: 5,
     backgroundColor: '#F5FCFF',
     textAlign: 'center',
@@ -175,16 +175,23 @@ const styles = StyleSheet.create({
     fontFamily: "Biligyar",
   },
   touchButton: {
-    height: 40,
-    width: 100,
+    height: height * 0.05,
+    width: width * 0.2,
     borderRadius: 20,
     backgroundColor: '#fa1faa',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-
   touchButtonText: {
     color: 'white',
+    textAlign: 'center',
+  },
+  actionButtonIcon: {
+    color: 'white',
+    textAlign: 'center',
+  },
+  buttonTextStyle:{
+    fontSize: 15,
     textAlign: 'center',
   }
 });
