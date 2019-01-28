@@ -7,11 +7,12 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert} from 'react-native';
+import {StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, TouchableHighlight} from 'react-native';
 import RNFS from "react-native-fs";
 import Toast from 'react-native-easy-toast'
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
+
 type Props = {};
 
 const config = {
@@ -56,19 +57,6 @@ export default class App extends Component<Props> {
 
   }
 
-
-  DownloadFormUrl(url, title, headers){
-    fetch(url, {method:"HEAD", headers: headers}).then(
-        response => {
-          var _type = fileType[response.headers["map"]["content-type"]];
-          if (_type == null){
-            this.refs.toast.show(`暂时不支持该类型文件下载！: ${response.headers["map"]["content-type"]}`, 1000);
-          }else{
-            this.downloadFile(url, _type, headers, title)
-          }
-        }
-    )
-  }
   _onEndEditing(event){
     //把获取到的内容，设置给showValue
     this.setState({showValue:event.nativeEvent.text});
@@ -133,16 +121,27 @@ export default class App extends Component<Props> {
           />
           {/* Rest of the app comes ABOVE the action button component !*/}
           <ActionButton buttonColor="rgba(231,76,60,1)" offsetX={10} offsetY={50} buttonText="更多" buttonTextStyle={styles.buttonTextStyle}>
+
             <ActionButton.Item buttonColor='#9b59b6'  onPress={() => console.log("notes tapped!")}>
+              <TouchableHighlight
+                  style={{padding: 10}}
+                  onPress={()=>{
+                    this.refs.toast.show('hello worsssld!');
+                  }}>
               <Icon name="md-create" style={styles.actionButtonIcon} >已下载</Icon>
+              </TouchableHighlight>
             </ActionButton.Item>
+
+
             <ActionButton.Item buttonColor='#3498db' onPress={() => {}}>
               <Icon name="md-notifications-off" style={styles.actionButtonIcon} >设置</Icon>
             </ActionButton.Item>
+
             <ActionButton.Item buttonColor='#1abc9c' onPress={() => {}}>
               <Icon name="md-done-all" style={styles.actionButtonIcon} >关于</Icon>
             </ActionButton.Item>
           </ActionButton>
+
         </View>
     );
   }
