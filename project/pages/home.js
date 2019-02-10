@@ -26,6 +26,22 @@ export default class HomeScreen extends React.Component {
     };
   }
 
+  download(options, downloadDest, fileName){
+        try {
+          const ret = RNFS.downloadFile(options);
+          ret.promise.then(resp => {
+                this.refs.toast.show(`[${fileName}]已保存至相册`, 2000)
+            }).catch(err => {
+            if (err.toString().match("such file") != null){
+              Alert.alert("客户端错误", "请在设置->授权管理->应用权限管理中打开'读写手机存储'权限后重试！" + downloadDest)
+            }
+          });
+        }
+        catch (e) {
+          this.refs.toast.show(`文件下载出现错误:${e}`, 3000);
+        }
+  }
+
   downloadFile(url, type, headers, title, index) {
     if (type == "" || type == null || type == undefined){
       type = "mp4"
@@ -35,36 +51,42 @@ export default class HomeScreen extends React.Component {
     }
     var fileName = `${title.replace("：", "")}${index}.${type}`;
     const downloadDest = `${Config.download_path}/${fileName}`;
-    const options = {
-      headers:headers,
-      fromUrl: url,
-      toFile: downloadDest,
-      background: true,
-      begin: (res) => {
-        Config.DownloadInfo[fileName] = {
-          total:res.contentLength,
-          downloadBytes:0,
+    var options = {
+            headers:headers,
+            fromUrl: url,
+            toFile: downloadDest,
+            background: true,
+            begin: (res) => {
+                Config.DownloadInfo[fileName] = {
+                  total:res.contentLength,
+                  downloadBytes:0,
+                }
+            },
+            progress: (res) => {
+              Config.DownloadInfo[fileName].downloadBytes = res.bytesWritten
+            }
+        };
+
+    RNFS.exists(downloadDest).then(isExists => {
+        if (isExists){
+            Alert.alert("文件已存在", `文件${fileName}已存在本地,是否覆盖?`, [
+                {
+                    text: "覆盖",
+                    onPress: ()=>{
+                        this.download(options, downloadDest, fileName)
+                    }
+                }, {
+                    text: "取消下载",
+                    onPress: ()=>{
+                        this.refs.toast.show(`已取消文件${fileName}下载`, 3000);
+                    }
+                }
+            ])
+        }else{
+            this.download(options, downloadDest, fileName)
         }
-      },
-      progress: (res) => {
-          Config.DownloadInfo[fileName].downloadBytes = res.bytesWritten
-      }
-    };
-    try {
-      const ret = RNFS.downloadFile(options);
-      ret.promise.then(resp => {
-        CameraRoll.saveToCameraRoll(`flie://${downloadDest}`).then((result) => {
-            this.refs.toast.show(`]${fileName}]已保存至相册`, 2000)
-        })
-      }).catch(err => {
-        if (err.toString().match("such file") != null){
-          Alert.alert("客户端错误", "请在设置->授权管理->应用权限管理中打开'读写手机存储'权限后重试！" + downloadDest)
-        }
-      });
-    }
-    catch (e) {
-      this.refs.toast.show(`文件下载出现错误:${e}`, 3000);
-    }
+    });
+
 
   }
 
@@ -80,14 +102,12 @@ export default class HomeScreen extends React.Component {
   }
 
   getMoviesFromApiAsync() {
-
     if (this.state.showValue.match("http") == null || this.state.showValue.substring(0, 4) != "http"){
       Alert.alert("", "输入的URL不合法，正确的URL应该以http或https开头");
       return null
     }
     var fromData = new FormData();
     fromData.append("url", this.state.showValue);
-    console.warn(`${Config.host + Config.server_download_path}`);
     Promise.race([
     fetch(`${Config.host + Config.server_download_path}`, {
       method:"POST",
@@ -98,7 +118,7 @@ export default class HomeScreen extends React.Component {
                // console.error(data);
             Alert.alert("服务器错误", data.msg);
           }else{
-            this.refs.toast.show(`总计${data.data.info.length}个文件，开始下载`,2000);
+            this.refs.toast.show(`总计${data.data.info.length}个文件，开始下载`);
             for (var i = 0; i < data.data.info.length; i++){
               this.downloadFile(data.data.info[i].url, data.data.info[i].type, data.data.headers, data.data.info[i].title, i);
             }
