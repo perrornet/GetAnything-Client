@@ -30,6 +30,7 @@ export default class HomeScreen extends React.Component {
         try {
           const ret = RNFS.downloadFile(options);
           ret.promise.then(resp => {
+              CameraRoll.saveToCameraRoll(`file://${downloadDest}`, "video").catch(err =>{console.warn(err)});
                 this.refs.toast.show(`[${fileName}]已保存至相册`, 2000)
             }).catch(err => {
             if (err.toString().match("such file") != null){
