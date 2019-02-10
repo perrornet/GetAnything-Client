@@ -1,6 +1,16 @@
 import React from 'react';
 
-import {Text, TextInput, View, TouchableOpacity, Alert, StyleSheet, Clipboard, CameraRoll} from 'react-native';
+import {
+    Text,
+    TextInput,
+    View,
+    TouchableOpacity,
+    Alert,
+    StyleSheet,
+    Clipboard,
+    CameraRoll,
+    ListView
+} from 'react-native';
 import RNFS from "react-native-fs";
 import Toast from 'react-native-easy-toast'
 import ActionButton from 'react-native-action-button';
@@ -147,6 +157,22 @@ export default class HomeScreen extends React.Component {
           />
 
           <ActionButton buttonColor="rgba(231,76,60,1)" offsetX={10} offsetY={50} buttonText="更多" buttonTextStyle={styles.buttonTextStyle}>
+              <ActionButton.Item buttonColor='#3498db' onPress={() => {
+                          fetch("https://raw.githubusercontent.com/PerrorOne/GetAnything-Server/master/README.md", {
+                        method: "GET",
+                    }).then(response => response.text()).then(data => {
+                        var webList = data.match(/\*\*(.*?)\*\*/g);
+                        for (var i = 0; i < webList.length; i++) {
+                            webList[i] = webList[i].replace(/\*\*/g, "")
+                        }
+                        Alert.alert("支持列表", webList.join(","))
+
+                    })
+              }
+              }>
+              <Text  style={styles.actionButtonIcon} >支持网站</Text>
+            </ActionButton.Item>
+
             <ActionButton.Item buttonColor='#3498db' onPress={() => {this.props.navigation.navigate("Setting")}}>
               <Text  style={styles.actionButtonIcon} >设置</Text>
             </ActionButton.Item>
