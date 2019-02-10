@@ -1,6 +1,6 @@
 {
   "name": "GetAnything",
-  "version": "0.0.1",
+  "version": "0.2",
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
@@ -17,6 +17,7 @@
     "react-native-gesture-handler": "^1.0.15",
     "react-native-material-kit": "^0.5.1",
     "react-native-progress": "^3.5.0",
+    "react-native-simple-markdown": "^1.1.0",
     "react-native-sqlite-storage": "^3.3.9",
     "react-native-ui-lib": "^3.15.5",
     "react-native-vector-icons": "^6.2.0",
