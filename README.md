@@ -5,8 +5,8 @@
 后端: https://github.com/PerrorOne/GetAnything-Server
 
 ## Installation
-开发完成后APP将会进入各个APP商店，同时会有一个简单的下载服务器支持，也支持自定义服务器。
-目前仅仅实现了简单的文件下载，以及简单的UI。
+android: https://github.com/PerrorOne/GetAnything-Client/releases<br>
+IOS: 暂未提供
 ## TODO
 1. 完整UI
 2. 完善下载逻辑
