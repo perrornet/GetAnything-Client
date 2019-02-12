@@ -80,8 +80,11 @@ export default class HomeScreen extends React.Component {
         try {
           const ret = RNFS.downloadFile(options);
           ret.promise.then(resp => {
-              CameraRoll.saveToCameraRoll(`file://${downloadDest}`, "video").catch(err =>{console.warn(err)});
-                this.refs.toast.show(`[${fileName}]已保存至相册`, 2000)
+              CameraRoll.saveToCameraRoll(`file://${downloadDest}`, "video")
+                  .then(_ =>{
+                      this.refs.toast.show(`[${fileName}]已保存至相册`, 2000)}
+                      )
+                  .catch(err =>{console.warn(err)});
             }).catch(err => {
             if (err.toString().match("such file") != null){
               Alert.alert("客户端错误", "请在设置->授权管理->应用权限管理中打开'读写手机存储'权限后重试！" + downloadDest)
