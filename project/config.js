@@ -48,6 +48,7 @@ requestCameraPermission();
 
 const Config = {
   "download_path":  RNFS.ExternalDirectoryPath,
+    "conf_file_path": `${RNFS.ExternalDirectoryPath}/.GetAnything.Conf`,
   "host": "http://23ss464660.iok.la",
     "default_host":"http://23ss464660.iok.la",
     "server_download_path": "/GetVideoUrl",
@@ -58,11 +59,12 @@ const Config = {
 };
 
 function reloadConf(){
-     RNFS.readFile(`${RNFS.ExternalDirectoryPath}/GetAnything.Conf`).then((data) =>{
+     RNFS.readFile(Config.conf_file_path).then((data) =>{
         Config.host = data
     }).catch((err) => {
         // 创建文件
-        RNFS.writeFile(`${RNFS.ExternalDirectoryPath}/GetAnything.Conf`, Config.host)
+         console.error(err);
+        RNFS.writeFile(Config.conf_file_path, Config.host)
     });
 }
 reloadConf();

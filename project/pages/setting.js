@@ -39,7 +39,7 @@ export default class SettingScreen extends React.Component {
     super(props);
     this.state = {
       Value:"",
-        reload:"",
+        reload: false,
     };
   }
 
@@ -56,7 +56,7 @@ export default class SettingScreen extends React.Component {
         }
         console.warn(this.state.Value);
         if (this.state.Value.match("http") == null || this.state.Value.substring(0, 4) != "http"){
-            Alert.alert("修改配置出错", "输入Host非法，应该以http或https开头，示例:http://23ss464660.iok.la")
+            Alert.alert("修改配置出错", "输入Host非法，应该以http或https开头，示例:http://23ss464660.iok.la");
             return
         }
         // 连接服务器测试是否可用
@@ -65,9 +65,13 @@ export default class SettingScreen extends React.Component {
         }).then(response => response.text()).then(data => {
             console.warn(data);
             if (data == "ok"){
-                RNFS.writeFile(`${RNFS.ExternalDirectoryPath}/GetAnything.Conf`, Config.host);
-                Config.host = this.state.Value;
-                this.refs.toast.show(`已修改服务器Host:${Config.host}`, 3000);
+                RNFS.writeFile(Config.conf_file_path, this.state.Value)
+                    .then(_ => {
+                        Alert.alert("修改配置成功", `已修改服务器HOST: ${Config.host}`);
+                        this.setState({reload: !this.state.reload});
+                        Config.host = this.state.Value;
+                    });
+
             }else{
                 Alert.alert("修改配置失败", `${this.state.Value}服务器未能响应，请检查服务是否启动。`)
             }
