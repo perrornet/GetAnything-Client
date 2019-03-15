@@ -8,14 +8,14 @@
 android: https://github.com/PerrorOne/GetAnything-Client/releases<br>
 IOS: 暂未提供
 ## TODO
-1. 完整UI
-2. 完善下载逻辑
-3. 支持m3u8文件下载
-4. 完善消息提示框
+1.IOS支持
 
 ## Release History
-
-## Meta
+[android-v0.5](https://github.com/PerrorOne/GetAnything-Client/releases/tag/android-v0.5):修改默认服务器URL。（非正式版本）<br>
+[android-v0.4](https://github.com/PerrorOne/GetAnything-Client/releases/tag/android-v0.4):增加m3u8类型文件下载。（非正式版本）<br>
+[android-v0.3](https://github.com/PerrorOne/GetAnything-Client/releases/tag/android-v0.3):优化视频存储目录。（非正式版本）<br>
+[android-v0.2](https://github.com/PerrorOne/GetAnything-Client/releases/tag/android-v0.2):优化下载逻辑、修复提示BUG。（非正式版本）<br>
+[android-v0.1](https://github.com/PerrorOne/GetAnything-Client/releases/tag/android-v0.1-apk):简单的客户端支持。（现已不能使用）<br>
 
 ## Contributing
 
