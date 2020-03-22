@@ -1,5 +1,6 @@
 # GetAnything-Client
 > 在移动端获取任何APP、网站媒体资源, 客户端。
+**由于历史原因,安装完成后请在更多->设置中修改服务器地址为:https://video.specterlibrary.com**
 
 前后端开发中 <br>
 后端: https://github.com/PerrorOne/GetAnything-Server
